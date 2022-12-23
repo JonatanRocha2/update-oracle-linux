@@ -1,0 +1,26 @@
+---
+- name: Update Oracle Linux
+  hosts: all
+  gather_facts: yes
+  become: true
+  become_user: root
+  become_method: sudo
+
+  tasks:
+    - name: Check if /var is grater than 40 GB
+      include_role: 
+        name: free-disk-space
+    - name: Permit root login
+      include_role:
+        name: root-login
+    - name: Atualiza SO Oracle Linux para 8.7
+      include_role:
+        name: oracle-linux-update
+    - name: Instala ultilitario Leapp
+      include_role:
+        name: leapp
+    - name: Upgrade SO
+      include_role:
+        name: upgrade-system
+
+...

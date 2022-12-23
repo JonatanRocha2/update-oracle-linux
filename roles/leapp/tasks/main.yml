@@ -1,0 +1,34 @@
+# Install the Leapp Utility
+
+- name: Install the Leapp utility and its supporting repositories
+  yum:
+    name: leapp
+    enablerepo: "ol7_leapp,ol7_latest"
+  become: yes
+
+- name: Run the leapp preupgrade command to start the preupgrade process
+  command: leapp preupgrade --oraclelinux
+  register: command_result
+  failed_when: "'FAILED' in command_result.stderr"
+  become: yes
+
+- name: Print return information from the previous task
+  debug:
+    var: command_result
+    verbosity: 2
+
+- name: leapp answer command to provide the answer True to the [remove_pam_pkcs11_module_check] PAM module item
+  command: leapp answer --section remove_pam_pkcs11_module_check.confirm=True --add
+
+- name: leapp answer command to provide the answer Flase to the [authselect_check] authselect_check item
+  command: leapp answer --section authselect_check.confirm=False --add
+
+# Note: If you prefer you can also edit the answerfile with the sudo vi /var/log/leapp/answerfile command and insert the True setting.
+
+- name: Verify the answerfile has been modified
+  command: cat /var/log/leapp/answerfile
+  register: answerfile
+
+- name: See answerfile
+  debug: "msg={{ answerfile.stdout }}"
+

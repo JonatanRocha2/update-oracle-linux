@@ -1,0 +1,42 @@
+# For comparison to after the upgrade, verify the current OS and kernel version of the system.
+
+- name: Check the Oracle Linux version running on the system
+  command: cat /etc/oracle-release
+  register: release
+
+- name: See oracle-release
+  debug: "msg={{ release.stdout }}"
+
+- name: Check the kernel version used
+  command: uname -r
+  register: kernel
+
+- name: See kernel-version
+  debug: "msg={{ kernel.stdout }}"
+
+- name: Run the upgrade process
+  command: leapp upgrade --oraclelinux
+  failed_when: "'FAILED' in command_result.stderr"
+  register: command_result
+# The upgrade process will take approximately 10 minutes, and returns to the command prompt when finished.
+
+- name: Print return information from the previous task
+  debug:
+    var: command_result
+    verbosity: 2
+
+- name: Reboot machine
+  reboot:
+    # reboot_timeout: 900
+
+- name: Compare the OS version and kernel now used for the system with the preupgrade version
+  command: cat /etc/oracle-release
+
+- name: See oracle-release
+  debug: "msg={{ release.stdout }}"
+
+- name: Check the kernel version used
+  command: uname -r
+
+- name: See kernel-version
+  debug: "msg={{ kernel.stdout }}"

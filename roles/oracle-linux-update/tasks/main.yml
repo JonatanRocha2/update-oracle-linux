@@ -1,0 +1,22 @@
+# Documentação em https://docs.oracle.com/en/learn/ol-linux-leapp/index.html#introduction
+
+- name: Verify that the system locale is set to en_US.UTF-8
+  command: cat /etc/locale.conf
+  register: locale_conf
+
+- name: See system locale
+  debug: "msg={{ locale_conf.stdout }}"
+
+- block:
+  - name: Set locale if not set correctly
+    command: localectl set-locale LANG=en_US.UTF-8
+  when: locale_conf is failed
+
+- block:
+  - name: Update packages
+    yum:
+      name: '*'
+      state: latest
+
+  - name: Reboot machine
+    reboot:
